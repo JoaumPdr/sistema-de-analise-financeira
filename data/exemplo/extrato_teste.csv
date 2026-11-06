@@ -1,0 +1,36 @@
+data,descricao,valor,tipo,categoria
+01/01/2026,Salario Mensal,"5000,00",receita,Salario
+02/01/2026,Aluguel,"1200,00",despesa,Moradia
+05/01/2026,Internet,"100,00",despesa,Contas Fixas
+10/01/2026,Supermercado,"600,00",despesa,Alimentacao
+15/01/2026,Netflix,"55,90",despesa,Lazer
+20/01/2026,Energia Eletrica,"150,00",despesa,Contas Fixas
+01/02/2026,Salario Mensal,"5000,00",receita,Salario
+02/02/2026,Aluguel,"1200,00",despesa,Moradia
+05/02/2026,Internet,"100,00",despesa,Contas Fixas
+12/02/2026,Supermercado,"650,00",despesa,Alimentacao
+15/02/2026,Netflix,"55,90",despesa,Lazer
+22/02/2026,Energia Eletrica,"140,00",despesa,Contas Fixas
+01/03/2026,Salario Mensal,"5000,00",receita,Salario
+02/03/2026,Aluguel,"1200,00",despesa,Moradia
+05/03/2026,Internet,"100,00",despesa,Contas Fixas
+15/03/2026,Netflix,"55,90",despesa,Lazer
+25/03/2026,Energia Eletrica,"160,00",despesa,Contas Fixas
+01/04/2026,, "100,00",despesa,Lazer
+02/04/2026,Aluguel,"-1200,00",despesa,Moradia
+05/04/2026,Internet,"100,00",despesa,Contas Fixas
+10/04/2026,Supermercado,"700,00",despesa,Alimentacao
+15/04/2026,Netflix,"55,90",despesa,Lazer
+20/04/2026,Energia Eletrica,"130,00",despesa,Contas Fixas
+01/05/2026,Salario Mensal,"5000,00",receita,Salario
+02/05/2026,Aluguel,"1200,00",despesa,Moradia
+05/05/2026,Internet,"100,00",despesa,Contas Fixas
+15/05/2026,Netflix,"55,90",despesa,Lazer
+20/05/2026,Energia Eletrica,"150,00",despesa,Contas Fixas
+01/06/2026,Aluguel,"1200,00",despesa,Moradia
+05/06/2026,Internet,"100,00",despesa,Contas Fixas
+15/06/2026,Netflix,"55,90",despesa,Lazer
+20/06/2026,Energia Eletrica,"140,00",despesa,Contas Fixas
+01/01/2026,Salario Mensal,"5000,00",receita,Salario
+31/12/2099,Viagem ao Futuro,"10000,00",despesa,Lazer
+01/01/2026,Salario Mensal,"5000,00",receita,Inexistente
