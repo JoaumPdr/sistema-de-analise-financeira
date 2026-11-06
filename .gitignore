@@ -1,0 +1,13 @@
+# .gitignore
+.env
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+ENV/
+.pytest_cache/
+.ruff_cache/
+.idea/
+.vscode/
+data/reais/
