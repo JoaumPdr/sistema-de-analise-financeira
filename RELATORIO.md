@@ -1,8 +1,8 @@
 # RELATÓRIO DE DESENVOLVIMENTO - Sistema de Análise Financeira Pessoal
 
 ## Quadro de Status
-- F0: Estrutura inicial [em andamento]
-- F1: Modelo de dados [pendente]
+- F0: Estrutura inicial [concluída]
+- F1: Modelo de dados [em andamento]
 - F2: Importação e validação [pendente]
 - F3: Consultas SQL de análise [pendente]
 - F4: Categorias [pendente]
