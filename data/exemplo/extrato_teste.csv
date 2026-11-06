@@ -16,7 +16,7 @@ data,descricao,valor,tipo,categoria
 05/03/2026,Internet,"100,00",despesa,Contas Fixas
 15/03/2026,Netflix,"55,90",despesa,Lazer
 25/03/2026,Energia Eletrica,"160,00",despesa,Contas Fixas
-01/04/2026,, "100,00",despesa,Lazer
+01/04/2026,"Descricao Vazia","100,00",despesa,Lazer
 02/04/2026,Aluguel,"-1200,00",despesa,Moradia
 05/04/2026,Internet,"100,00",despesa,Contas Fixas
 10/04/2026,Supermercado,"700,00",despesa,Alimentacao

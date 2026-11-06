@@ -4,6 +4,7 @@ from sqlalchemy import text
 from src.financas.modelos import Importacao, Receita, Despesa, RegistroRejeitado, Categoria
 from src.financas.importacao.normalizadores import detectar_configuracao_csv, normalizar_valor, normalizar_data, calcular_hash
 from src.financas.importacao.validador import ValidadorImportacao
+from typing import Dict, Any
 
 class ServicoImportacao:
     """
@@ -39,7 +40,7 @@ class ServicoImportacao:
 
         # 3. Validação e Processamento
         categorias_atuais = self._obter_categorias_existentes()
-        validador = ValidadorImportacao(categorias_atuais, criar_categorias=criar_categorias)
+        validador = ValidadorImportacao(categorias_atuais, criar_categorias_automaticamente=criar_categorias)
         
         aceitos = 0
         rejeitados = 0

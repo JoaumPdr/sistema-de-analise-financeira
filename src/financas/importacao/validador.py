@@ -17,9 +17,10 @@ class ValidadorImportacao:
         Valida uma linha de importação. 
         Retorna (True, None) se for válida, ou (False, "motivo") se for inválida.
         """
-        # 1. Colunas obrigatórias (verificado previamente no DataFrame, mas garantimos aqui)
+        # 1. Colunas obrigatórias
         for col in ['data', 'descricao', 'valor', 'tipo', 'categoria']:
-            if col not in linha or pd.isna(linha[col]):
+            val = linha.get(col)
+            if pd.isna(val) or str(val).strip() == "":
                 return False, f"Coluna obrigatória {col} ausente ou vazia"
 
         # Normalização
