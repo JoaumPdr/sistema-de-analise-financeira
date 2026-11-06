@@ -28,8 +28,22 @@ class AnalisadorFinanceiro:
             "data_fim": data_fim
         })
 
-    def media_despesas_mensais(self, meses_limite: int = 6) -> List[Dict[str, Any]]:
-        """Consulta 2: Média de gastos por categoria nos últimos N meses."""
-        return self._executar_sql("02_media_despesas_mensais.sql", {
-            "meses_limite": meses_limite
+    def comparacao_meses(self, mes_referencia: str) -> List[Dict[str, Any]]:
+        """Consulta 3: Comparação entre mês atual e anterior."""
+        return self._executar_sql("03_comparacao_entre_meses.sql", {
+            "mes_referencia": mes_referencia
         })
+
+    def despesas_recorrentes(self, tolerancia: float = 0.10) -> List[Dict[str, Any]]:
+        """Consulta 4: Despesas recorrentes (descrição similar e valor próximo)."""
+        return self._executar_sql("04_despesas_recorrentes.sql", {
+            "tolerancia": tolerancia
+        })
+
+    def renda_comprometida(self) -> List[Dict[str, Any]]:
+        """Consulta 5: Percentual de renda comprometida por mês."""
+        return self._executar_sql("05_percentual_renda_comprometida.sql", {})
+
+    def evolucao_financeira(self) -> List[Dict[str, Any]]:
+        """Consulta 6: Evolução mensal de receitas, despesas e saldo acumulado."""
+        return self._executar_sql("06_evolucao_financeira.sql", {})
