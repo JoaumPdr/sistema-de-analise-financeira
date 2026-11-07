@@ -1,12 +1,12 @@
-import os
-from decimal import Decimal, InvalidOperation
-from datetime import datetime
-import pandas as pd
 import hashlib
+from datetime import datetime
+from decimal import Decimal, InvalidOperation
+
+import pandas as pd
+
 
 class ImportacaoError(Exception):
     """Erro genérico de importação."""
-    pass
 
 def normalizar_valor(valor_str):
     """
@@ -69,7 +69,7 @@ def detectar_configuracao_csv(caminho_arquivo):
                 # Tenta encontrar o separador com mais ocorrências na primeira linha
                 sep = max(separadores, key=lambda s: primeira_linha.count(s))
                 return cod, sep
-        except (UnicodeDecodeError, IOError):
+        except (OSError, UnicodeDecodeError):
             continue
             
     raise ImportacaoError("Não foi possível detectar a codificação ou separador do arquivo.")

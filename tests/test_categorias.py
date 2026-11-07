@@ -1,7 +1,9 @@
 import pytest
+
 from src.financas.banco import get_session
-from src.financas.modelos import Categoria
 from src.financas.categorias.gerenciador import GerenciadorCategorias
+from src.financas.modelos import Categoria
+
 
 @pytest.fixture
 def db_session():

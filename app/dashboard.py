@@ -1,11 +1,13 @@
-import streamlit as st
-import pandas as pd
-from src.financas.banco import get_session
-from src.financas.importacao.servico import ServicoImportacao
-from src.financas.categorias.gerenciador import GerenciadorCategorias
-from src.financas.analise.analisador import AnalisadorFinanceiro
-from sqlalchemy import text
 import os
+
+import pandas as pd
+import streamlit as st
+from sqlalchemy import text
+
+from src.financas.analise.analisador import AnalisadorFinanceiro
+from src.financas.banco import get_session
+from src.financas.categorias.gerenciador import GerenciadorCategorias
+from src.financas.importacao.servico import ServicoImportacao
 
 # Configuração da página
 st.set_page_config(
@@ -63,7 +65,7 @@ if pagina == "Importar CSV":
                         ).fetchall()
                         st.table([{"Linha": r[0], "Motivo": r[1], "Conteúdo": r[2]} for r in rejeitados])
                         
-                except Exception as e:
+                except Exception as e:  # noqa: BLE001
                     st.error(f"Erro na importação: {e}")
                 finally:
                     if os.path.exists(temp_path):
@@ -75,22 +77,21 @@ elif pagina == "Categorias":
     gerenciador = GerenciadorCategorias(session)
     
     # Formulário de criação
-    with st.expander("➕ Adicionar Nova Categoria"):
-        with st.form("nova_categoria"):
-            nome = st.text_input("Nome da Categoria")
-            tipo = st.selectbox("Tipo", ["despesa", "receita"])
-            submit = st.form_submit_button("Criar")
-            
-            if submit:
-                if nome:
-                    nova = gerenciador.criar_categoria(nome, tipo)
-                    if nova:
-                        st.success(f"Categoria '{nome}' criada!")
-                        st.rerun()
-                    else:
-                        st.error("Esta categoria já existe para o tipo selecionado.")
+    with st.expander("➕ Adicionar Nova Categoria"), st.form("nova_categoria"):
+        nome = st.text_input("Nome da Categoria")
+        tipo = st.selectbox("Tipo", ["despesa", "receita"])
+        submit = st.form_submit_button("Criar")
+        
+        if submit:
+            if nome:
+                nova = gerenciador.criar_categoria(nome, tipo)
+                if nova:
+                    st.success(f"Categoria '{nome}' criada!")
+                    st.rerun()
                 else:
-                    st.error("Por favor, insira um nome.")
+                    st.error("Esta categoria já existe para o tipo selecionado.")
+            else:
+                st.error("Por favor, insira um nome.")
 
     # Listagem e Gestão
     st.subheader("Categorias Cadastradas")
@@ -106,11 +107,11 @@ elif pagina == "Categorias":
             status = "Ativa" if cat['ativa'] else "Inativa"
             col2.write(status)
             
-            if col3.button(f"Alternar Status", key=f"btn_status_{cat['id']}"):
+            if col3.button("Alternar Status", key=f"btn_status_{cat['id']}"):
                 gerenciador.alternar_status(cat['id'], not cat['ativa'])
                 st.rerun()
             
-            if col4.button(f"Excluir", key=f"btn_del_{cat['id']}", help="Apenas categorias sem registros podem ser excluídas"):
+            if col4.button("Excluir", key=f"btn_del_{cat['id']}", help="Apenas categorias sem registros podem ser excluídas"):
                 # Implementação simples: apenas desativa por segurança conforme instrução
                 gerenciador.alternar_status(cat['id'], False)
                 st.rerun()

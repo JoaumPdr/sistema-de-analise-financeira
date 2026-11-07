@@ -1,7 +1,16 @@
 from datetime import datetime
-from decimal import Decimal
-from typing import Optional
-from sqlalchemy import Column, Integer, String, Date, Numeric, ForeignKey, Boolean, DateTime, Index, text
+
+from sqlalchemy import (
+    Boolean,
+    Column,
+    Date,
+    DateTime,
+    ForeignKey,
+    Index,
+    Integer,
+    Numeric,
+    String,
+)
 from sqlalchemy.orm import declarative_base, relationship
 
 Base = declarative_base()

@@ -1,10 +1,24 @@
+from typing import Any
+
 import pandas as pd
-from sqlalchemy.orm import Session
 from sqlalchemy import text
-from src.financas.modelos import Importacao, Receita, Despesa, RegistroRejeitado, Categoria
-from src.financas.importacao.normalizadores import detectar_configuracao_csv, normalizar_valor, normalizar_data, calcular_hash
+from sqlalchemy.orm import Session
+
+from src.financas.importacao.normalizadores import (
+    calcular_hash,
+    detectar_configuracao_csv,
+    normalizar_data,
+    normalizar_valor,
+)
 from src.financas.importacao.validador import ValidadorImportacao
-from typing import Dict, Any
+from src.financas.modelos import (
+    Categoria,
+    Despesa,
+    Importacao,
+    Receita,
+    RegistroRejeitado,
+)
+
 
 class ServicoImportacao:
     """
@@ -19,7 +33,7 @@ class ServicoImportacao:
         res = self.session.execute(text("SELECT nome FROM categorias WHERE ativa = true")).fetchall()
         return {row[0] for row in res}
 
-    def importar_csv(self, caminho_arquivo: str, criar_categorias: bool = False) -> Dict[str, Any]:
+    def importar_csv(self, caminho_arquivo: str, criar_categorias: bool = False) -> dict[str, Any]:
         # 1. Detectar Configuração
         cod, sep = detectar_configuracao_csv(caminho_arquivo)
         df = pd.read_csv(caminho_arquivo, sep=sep, encoding=cod)
@@ -114,9 +128,9 @@ class ServicoImportacao:
             
             self.session.commit()
             
-        except Exception as e:
+        except Exception:
             self.session.rollback()
-            raise e
+            raise
 
         return {
             "lidas": len(df),

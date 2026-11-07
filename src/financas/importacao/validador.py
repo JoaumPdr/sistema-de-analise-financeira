@@ -1,7 +1,8 @@
-from decimal import Decimal
 from datetime import date
-from typing import Tuple, List, Optional, Dict, Any
-from src.financas.importacao.normalizadores import normalizar_valor, normalizar_data
+from typing import Any
+
+from src.financas.importacao.normalizadores import normalizar_data, normalizar_valor
+
 
 class ValidadorImportacao:
     """
@@ -12,7 +13,7 @@ class ValidadorImportacao:
         self.categorias_existentes = categorias_existentes
         self.criar_categorias_automaticamente = criar_categorias_automaticamente
 
-    def validar_linha(self, linha: Dict[str, Any]) -> Tuple[bool, Optional[str]]:
+    def validar_linha(self, linha: dict[str, Any]) -> tuple[bool, str | None]:
         """
         Valida uma linha de importação. 
         Retorna (True, None) se for válida, ou (False, "motivo") se for inválida.
@@ -53,9 +54,8 @@ class ValidadorImportacao:
             return False, "Descrição não pode estar vazia"
 
         # 6. Categoria existente
-        if categoria not in self.categorias_existentes:
-            if not self.criar_categorias_automaticamente:
-                return False, f"Categoria '{categoria}' não cadastrada"
+        if categoria not in self.categorias_existentes and not self.criar_categorias_automaticamente:
+            return False, f"Categoria '{categoria}' não cadastrada"
         
         return True, None
 

@@ -1,9 +1,16 @@
+
 import pytest
-from decimal import Decimal
-from sqlalchemy.orm import Session
+
 from src.financas.banco import get_session
-from src.financas.modelos import Receita, Despesa, Categoria, Importacao, RegistroRejeitado
 from src.financas.importacao.servico import ServicoImportacao
+from src.financas.modelos import (
+    Categoria,
+    Despesa,
+    Importacao,
+    Receita,
+    RegistroRejeitado,
+)
+
 
 @pytest.fixture
 def db_session():

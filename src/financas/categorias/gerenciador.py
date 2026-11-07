@@ -1,7 +1,10 @@
-from sqlalchemy.orm import Session
+from typing import Any
+
 from sqlalchemy import text
+from sqlalchemy.orm import Session
+
 from src.financas.modelos import Categoria
-from typing import List, Dict, Any, Optional
+
 
 class GerenciadorCategorias:
     """
@@ -11,7 +14,7 @@ class GerenciadorCategorias:
     def __init__(self, session: Session):
         self.session = session
 
-    def listar_categorias(self, apenas_ativas: bool = True) -> List[Dict[str, Any]]:
+    def listar_categorias(self, apenas_ativas: bool = True) -> list[dict[str, Any]]:
         """
         Lista categorias. Se apenas_ativas=True, omite as desativadas.
         """
@@ -25,7 +28,7 @@ class GerenciadorCategorias:
             for row in res
         ]
 
-    def criar_categoria(self, nome: str, tipo: str) -> Optional[Categoria]:
+    def criar_categoria(self, nome: str, tipo: str) -> Categoria | None:
         """
         Cria uma nova categoria. 
         Valida se já existe uma categoria com o mesmo nome para o mesmo tipo.
