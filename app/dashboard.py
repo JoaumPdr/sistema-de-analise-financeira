@@ -1,8 +1,11 @@
 import streamlit as st
+import pandas as pd
 from src.financas.banco import get_session
 from src.financas.importacao.servico import ServicoImportacao
 from src.financas.categorias.gerenciador import GerenciadorCategorias
 from src.financas.analise.analisador import AnalisadorFinanceiro
+from sqlalchemy import text
+import os
 
 # Configuração da página
 st.set_page_config(
@@ -63,7 +66,6 @@ if pagina == "Importar CSV":
                 except Exception as e:
                     st.error(f"Erro na importação: {e}")
                 finally:
-                    import os
                     if os.path.exists(temp_path):
                         os.remove(temp_path)
 
@@ -113,7 +115,6 @@ elif pagina == "Categorias":
                 gerenciador.alternar_status(cat['id'], False)
                 st.rerun()
 
-# --- PÁGINAS DE ANÁLISE (A serem implementadas na próxima unidade) ---
 # --- PÁGINA: VISÃO GERAL ---
 elif pagina == "Visão Geral":
     st.header("📊 Visão Geral")
@@ -131,7 +132,7 @@ elif pagina == "Visão Geral":
         
         # Dados do mês selecionado
         inicio_mes = mes_selecionado
-        fim_mes = (mes_selecionado + pd.DateOffset(months=1)) - pd.Timedelta(days=1)
+        fim_mes = (pd.Timestamp(mes_selecionado) + pd.DateOffset(months=1)) - pd.Timedelta(days=1)
         
         # Gastos por categoria (para calcular total despesas)
         gastos_cat = analisador.gastos_por_categoria(str(inicio_mes), str(fim_mes))
@@ -157,7 +158,6 @@ elif pagina == "Visão Geral":
 
         # Gráfico rápido de composição das despesas
         if gastos_cat:
-            import pandas as pd
             df_gastos = pd.DataFrame(gastos_cat)
             st.subheader("Composição das Despesas")
             st.bar_chart(df_gastos.set_index('nome_categoria')['total'])
@@ -181,7 +181,6 @@ elif pagina == "Gastos":
         if not gastos:
             st.info("Nenhuma despesa no período selecionado.")
         else:
-            import pandas as pd
             df = pd.DataFrame(gastos)
             
             # Filtro de categorias
@@ -213,7 +212,6 @@ elif pagina == "Evolução":
     if not evolucao:
         st.info("Nenhum dado para exibir a evolução.")
     else:
-        import pandas as pd
         df = pd.DataFrame(evolucao)
         df['mes'] = pd.to_datetime(df['mes'])
         
@@ -263,7 +261,6 @@ elif pagina == "Recorrentes":
     if not recorrentes:
         st.info("Nenhuma despesa recorrente detectada (mínimo 3 meses distintos).")
     else:
-        import pandas as pd
         df = pd.DataFrame(recorrentes)
         
         st.metric("Total Mensal Estimado (Recorrentes)", f"R$ {df['valor_medio'].sum():,.2f}".replace(",", "X").replace(".", ",").replace("X", "."))
@@ -277,6 +274,3 @@ elif pagina == "Recorrentes":
             'valor_medio': 'Valor Médio', 'meses_distintos': 'Meses Distintos',
             'total_mensal_comprometido': 'Comprometimento Mensal'
         }), use_container_width=True)
-
-# Importações necessárias para o código acima
-from sqlalchemy import text
