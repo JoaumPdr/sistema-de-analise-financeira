@@ -114,21 +114,169 @@ elif pagina == "Categorias":
                 st.rerun()
 
 # --- PÁGINAS DE ANÁLISE (A serem implementadas na próxima unidade) ---
+# --- PÁGINA: VISÃO GERAL ---
 elif pagina == "Visão Geral":
     st.header("📊 Visão Geral")
-    st.info("Implementando cartões de resumo... (Aguardando Unidade 3)")
+    
+    # Filtro de Mês de Referência
+    meses_disp = session.execute(text("SELECT DISTINCT DATE_TRUNC('month', data)::DATE as mes FROM vw_movimentacoes ORDER BY mes DESC")).fetchall()
+    opcoes_meses = [m[0] for m in meses_disp]
+    
+    if not opcoes_meses:
+        st.info("Nenhum dado importado ainda. Vá em 'Importar CSV' para começar.")
+    else:
+        mes_selecionado = st.selectbox("Mês de Referência", opcoes_meses, format_func=lambda d: d.strftime("%m/%Y"))
+        
+        analisador = AnalisadorFinanceiro(session)
+        
+        # Dados do mês selecionado
+        inicio_mes = mes_selecionado
+        fim_mes = (mes_selecionado + pd.DateOffset(months=1)) - pd.Timedelta(days=1)
+        
+        # Gastos por categoria (para calcular total despesas)
+        gastos_cat = analisador.gastos_por_categoria(str(inicio_mes), str(fim_mes))
+        total_despesas = sum(g['total'] for g in gastos_cat)
+        
+        # Receitas do mês
+        receitas_mes = session.execute(text("""
+            SELECT COALESCE(SUM(valor), 0) FROM receitas 
+            WHERE data BETWEEN :ini AND :fim
+        """), {"ini": inicio_mes, "fim": fim_mes}).scalar()
+        
+        saldo = receitas_mes - total_despesas
+        
+        # Percentual comprometido
+        pct_comp = (total_despesas / receitas_mes * 100) if receitas_mes > 0 else 0
+        
+        # Cartões (KPIs)
+        col1, col2, col3, col4 = st.columns(4)
+        col1.metric("💰 Receitas", f"R$ {receitas_mes:,.2f}".replace(",", "X").replace(".", ",").replace("X", "."))
+        col2.metric("💸 Despesas", f"R$ {total_despesas:,.2f}".replace(",", "X").replace(".", ",").replace("X", "."))
+        col3.metric("⚖️ Saldo", f"R$ {saldo:,.2f}".replace(",", "X").replace(".", ",").replace("X", "."), delta_color="normal" if saldo >= 0 else "inverse")
+        col4.metric("📊 % Comprometido", f"{pct_comp:.1f}%", delta=f"{pct_comp - 30:.1f}% vs ideal 30%" if pct_comp > 30 else "Dentro do ideal")
 
+        # Gráfico rápido de composição das despesas
+        if gastos_cat:
+            import pandas as pd
+            df_gastos = pd.DataFrame(gastos_cat)
+            st.subheader("Composição das Despesas")
+            st.bar_chart(df_gastos.set_index('nome_categoria')['total'])
+
+# --- PÁGINA: GASTOS ---
 elif pagina == "Gastos":
-    st.header("📉 Análise de Gastos")
-    st.info("Implementando gráficos de categoria... (Aguardando Unidade 3)")
+    st.header("📉 Análise de Gastos por Categoria")
+    
+    analisador = AnalisadorFinanceiro(session)
+    
+    # Filtros
+    col_f1, col_f2 = st.columns(2)
+    with col_f1:
+        data_inicio = st.date_input("Data Início", value=None)
+    with col_f2:
+        data_fim = st.date_input("Data Fim", value=None)
+    
+    if data_inicio and data_fim:
+        gastos = analisador.gastos_por_categoria(str(data_inicio), str(data_fim))
+        
+        if not gastos:
+            st.info("Nenhuma despesa no período selecionado.")
+        else:
+            import pandas as pd
+            df = pd.DataFrame(gastos)
+            
+            # Filtro de categorias
+            cats_disponiveis = df['nome_categoria'].tolist()
+            cats_sel = st.multiselect("Filtrar Categorias", cats_disponiveis, default=cats_disponiveis)
+            df_filtrado = df[df['nome_categoria'].isin(cats_sel)]
+            
+            # Tabela Detalhada
+            st.subheader("Tabela Detalhada")
+            # Formatação para exibição
+            df_show = df_filtrado.copy()
+            df_show['total'] = df_show['total'].apply(lambda x: f"R$ {x:,.2f}".replace(",", "X").replace(".", ",").replace("X", "."))
+            df_show['percentual'] = df_show['percentual'].apply(lambda x: f"{x:.1f}%")
+            st.dataframe(df_show.rename(columns={'nome_categoria': 'Categoria', 'total': 'Total', 'percentual': '% do Total'}), use_container_width=True)
+            
+            # Gráfico
+            st.subheader("Gráfico de Gastos")
+            st.bar_chart(df_filtrado.set_index('nome_categoria')['total'])
+    else:
+        st.info("Selecione um período para visualizar os gastos.")
 
+# --- PÁGINA: EVOLUÇÃO ---
 elif pagina == "Evolução":
-    st.header("📈 Evolução Financeira")
-    st.info("Implementando série temporal... (Aguardando Unidade 4)")
+    st.header("📈 Evolução Financeira Mensal")
+    
+    analisador = AnalisadorFinanceiro(session)
+    evolucao = analisador.evolucao_financeira()
+    
+    if not evolucao:
+        st.info("Nenhum dado para exibir a evolução.")
+    else:
+        import pandas as pd
+        df = pd.DataFrame(evolucao)
+        df['mes'] = pd.to_datetime(df['mes'])
+        
+        # Gráfico de Linha
+        st.subheader("Receitas, Despesas e Saldo Acumulado")
+        st.line_chart(df.set_index('mes')[['receitas', 'despesas', 'saldo_acumulado']])
+        
+        # Tabela
+        st.subheader("Dados Mensais")
+        df_show = df.copy()
+        for col in ['receitas', 'despesas', 'saldo', 'saldo_acumulado']:
+            df_show[col] = df_show[col].apply(lambda x: f"R$ {x:,.2f}".replace(",", "X").replace(".", ",").replace("X", "."))
+        df_show['mes'] = df_show['mes'].dt.strftime('%m/%Y')
+        st.dataframe(df_show.rename(columns={
+            'mes': 'Mês', 'receitas': 'Receitas', 'despesas': 'Despesas', 
+            'saldo': 'Saldo', 'saldo_acumulado': 'Saldo Acumulado'
+        }), use_container_width=True)
+        
+        # Comparação entre dois meses
+        st.subheader("🔍 Comparação entre Meses")
+        meses = df['mes'].dt.strftime('%m/%Y').tolist()
+        col_c1, col_c2 = st.columns(2)
+        with col_c1:
+            mes1 = st.selectbox("Mês Base", meses, index=len(meses)-1 if meses else 0)
+        with col_c2:
+            mes2 = st.selectbox("Mês Comparação", meses, index=len(meses)-2 if len(meses) > 1 else 0)
+        
+        if st.button("Comparar"):
+            # Usa a consulta 03 (precisa da data base do mês 1)
+            # Encontrar a data real do mês 1
+            dt_mes1 = df[df['mes'].dt.strftime('%m/%Y') == mes1]['mes'].iloc[0]
+            comp = analisador.comparacao_meses(str(dt_mes1))
+            
+            if comp:
+                df_comp = pd.DataFrame(comp)
+                st.dataframe(df_comp, use_container_width=True)
+            else:
+                st.info("Sem dados para comparação.")
 
+# --- PÁGINA: RECORRENTES ---
 elif pagina == "Recorrentes":
     st.header("🔄 Despesas Recorrentes")
-    st.info("Implementando detecção de recorrências... (Aguardando Unidade 4)")
+    
+    analisador = AnalisadorFinanceiro(session)
+    recorrentes = analisador.despesas_recorrentes(tolerancia=0.10)
+    
+    if not recorrentes:
+        st.info("Nenhuma despesa recorrente detectada (mínimo 3 meses distintos).")
+    else:
+        import pandas as pd
+        df = pd.DataFrame(recorrentes)
+        
+        st.metric("Total Mensal Estimado (Recorrentes)", f"R$ {df['valor_medio'].sum():,.2f}".replace(",", "X").replace(".", ",").replace("X", "."))
+        
+        df_show = df.copy()
+        df_show['valor_medio'] = df_show['valor_medio'].apply(lambda x: f"R$ {x:,.2f}".replace(",", "X").replace(".", ",").replace("X", "."))
+        df_show['total_mensal_comprometido'] = df_show['total_mensal_comprometido'].apply(lambda x: f"R$ {x:,.2f}".replace(",", "X").replace(".", ",").replace("X", "."))
+        
+        st.dataframe(df_show.rename(columns={
+            'descricao': 'Descrição', 'categoria': 'Categoria',
+            'valor_medio': 'Valor Médio', 'meses_distintos': 'Meses Distintos',
+            'total_mensal_comprometido': 'Comprometimento Mensal'
+        }), use_container_width=True)
 
 # Importações necessárias para o código acima
 from sqlalchemy import text
