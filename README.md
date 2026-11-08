@@ -76,7 +76,7 @@ O navegador abrirá automaticamente em `http://localhost:8501`.
 
 ### 2. Importe o Arquivo de Exemplo
 1. No menu lateral, clique em **"Importar CSV"**.
-2. Faça upload do arquivo `data/exemplo/extrato_teste.csv`.
+2. Faça upload do arquivo `extrato_teste.csv` (na raiz do projeto) ou `data/exemplo/extrato_teste.csv`.
 3. Marque **"Criar categorias automaticamente se não existirem"**.
 4. Clique em **"Iniciar Importação"**.
 5. Verifique o resumo: linhas lidas, aceitas, rejeitadas e duplicadas.

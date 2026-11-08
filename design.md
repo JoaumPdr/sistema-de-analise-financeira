@@ -119,6 +119,7 @@ Arquivos em `sql/analise/`, executados via `AnalisadorFinanceiro`.
 - **Estados Vazios**: `st.info` com instruções contextuais.
 - **Layout**: `layout="wide"`, `st.columns` para responsividade.
 - **Cache**: Sessão DB em `st.session_state` (evita reconexão). Dados recalculados a cada interação (dado volume esperado baixo).
+- **Resiliência de Sessão**: Wrapper `safe_execute` com `rollback` automático e recriação de sessão em caso de erro (`InFailedSqlTransaction`), garantindo que uma falha pontual não trave a aplicação.
 
 ---
 
@@ -139,6 +140,7 @@ Arquivos em `sql/analise/`, executados via `AnalisadorFinanceiro`.
 - **Pytest**: Isolamento via fixture `db_session` (rollback/limpeza por teste).
 - **Ruff**: Linha 88, regras padrão.
 - **Cobertura**: F2 (validações, idempotência), F4 (CRUD categorias).
+- **Banco de Testes Isolado**: SQLite em memória (`sqlite:///:memory:`) com engine singleton por sessão de teste, garantindo isolamento total e velocidade sem depender do PostgreSQL/Docker.
 
 ---
 
@@ -149,6 +151,8 @@ Arquivos em `sql/analise/`, executados via `AnalisadorFinanceiro`.
 3.  **`python-dotenv`**: Carrega `.env` automaticamente no `banco.py`. Facilita troca de ambiente (dev/prod).
 4.  **Hash de Arquivo (`importacoes.hash_arquivo`)**: Permite detectar se o *mesmo arquivo físico* já foi processado, otimizando importações grandes.
 5.  **Tolerância Recorrência (F3 Consulta 4)**: Implementada como agrupamento por descrição exata. Melhoria futura: fuzzy matching (Levenshtein) para "Netflix" vs "Netflix.com".
+6.  **Gerenciamento de Sessão Resiliente (Dashboard)**: Uso de `SessionLocal()` (factory) em vez de `scoped_session` global. Wrapper `safe_execute` executa `rollback()` e recria a sessão automaticamente em exceções, prevenindo `InFailedSqlTransaction` em aplicações de longa execução (Streamlit).
+7.  **Testes com SQLite In-Memory**: Configuração em `tests/conftest.py` usa engine singleton persistente durante a sessão de testes, com limpeza de tabelas (`DELETE`) entre cada teste via fixture `db_session`. Elimina dependência do Docker para CI/testes locais.
 
 ---
 

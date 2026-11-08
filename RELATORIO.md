@@ -78,11 +78,15 @@
 **Próximos:** Documentação final.
 
 ### F6 — Documentação e Fechamento (07/11/2026)
-**Objetivo:** Entregar documentação completa e validar projeto.
+**Objetivo:** Entregar documentação completa, corrigir problemas de execução e validar projeto.
 **Playbook:** `direct` + `review-gate` final.
 **Feito:**
-- **README.md**: Reescrito com passos testáveis (Docker, Venv, Alembic, Streamlit, Importação exemplo).
-- **design.md**: Registradas todas as decisões (arquitetura, modelo, dinheiro, validação, queries, dashboard, qualidade).
+- **Correção Crítica — View Faltante**: Migração `8c2a01e8af67` criada/aplicada para `vw_movimentacoes` (causa raiz do `InFailedSqlTransaction`).
+- **Correção Crítica — Sessão Resiliente**: `app/dashboard.py` refatorado com `SessionLocal()` (factory) + `safe_execute()` que faz `rollback()` e recria sessão em erro, eliminando travamento por transação abortada.
+- **Correção Crítica — Testes Isolados**: `tests/conftest.py` usa SQLite in-memory com engine singleton e limpeza `DELETE` por teste (não depende mais de Docker/PostgreSQL).
+- **Arquivo de Exemplo na Raiz**: `extrato_teste.csv` copiado para raiz para upload direto no dashboard.
+- **README.md**: Atualizado com passos validados (Docker, Venv, Alembic, Streamlit, Importação exemplo).
+- **design.md**: Registradas decisões de sessão resiliente, testes isolados, view migration.
 - **RELATORIO.md**: Esta entrada cumulativa finalizando o quadro de status.
-- **Validação Final**: `pytest` (suíte completa passa), `ruff check .` (sem erros).
-**Critério de Aceite Final:** Um desenvolvedor iniciante consegue seguir o README do zero e ver o dashboard funcionando com o CSV de exemplo.
+- **Validação Final**: `pytest` (7/7 passam), `ruff check .` (All checks passed), `alembic upgrade head` (OK), `streamlit run` (inicializa sem erros).
+**Critério de Aceite Final:** Um desenvolvedor iniciante consegue seguir o README do zero, subir o banco, rodar migrações, iniciar o dashboard e importar o CSV de exemplo com sucesso.
